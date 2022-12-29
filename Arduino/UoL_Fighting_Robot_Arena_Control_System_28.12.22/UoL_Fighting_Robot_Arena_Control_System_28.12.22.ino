@@ -1,3 +1,5 @@
+#include <AP_Sync.h>
+
 
 int SpinPins[6] = { 4, 5, 6, 7, 8, 12 };           //the pins used for spinning motor
 int SpinPinsLen = sizeof(SpinPins) / sizeof(int);  //length of the array holding the pins
@@ -10,14 +12,14 @@ bool doorOpen = true;
 
 
 void setup() {
-  Serial.begin(19200);
-
-  if (digitalRead(DoorPins[1]) == LOW) {
+  Serial.begin(9600);
+//decide if the doors are open or closed at start
+  if ((digitalRead(DoorPins[0]) == LOW) && (digitalRead(DoorPins[1]) == LOW)) {
     doorOpen = false;
-    Serial.println("DOOR CLOSE");
+    Serial.println("DOOR CLOSE @ START");
   } else {
     doorOpen = true;
-    Serial.println("DOOR OPEN");
+    Serial.println("DOOR OPEN @ START");
   }
 
   //declare pinMode for spin motor controller pins
@@ -40,22 +42,25 @@ void setup() {
 
 void doorOPENED() {  //what to do if door is open
   doorOpen = true;
-
+//keep running this loop if ANY doors are open
   while (doorOpen == true) {
-    if (digitalRead(DoorPins[1]) == LOW) {
+    //will break the while loop if the door is shut
+    if ((digitalRead(DoorPins[0]) == LOW) && digitalRead(DoorPins[1]) == LOW) {
       doorOpen = false;
       Serial.println("DOOR CLOSED");
+      Serial.println("");
     }
     else{
       Serial.println("STILL OPEN");
     }
+    //delay to prevent saturating the serial line
     delay(100);
   }
 }
 
 
 void loop() {
-  // put your main code here, to run repeatedly.
+  //check initial state of doors before allowing remaining code to run
   if (doorOpen == true){
     doorOPENED();
   }
