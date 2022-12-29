@@ -1,4 +1,6 @@
-#include <AP_Sync.h>
+#include <AP_Sync.h> //library for Arduino control from Processing
+
+AP_Sync streamer(Serial); //allows AP_Sync to use Serial communication
 
 
 int SpinPins[6] = { 4, 5, 6, 7, 8, 12 };           //the pins used for spinning motor
@@ -47,15 +49,25 @@ void doorOPENED() {  //what to do if door is open
     //will break the while loop if the door is shut
     if ((digitalRead(DoorPins[0]) == LOW) && digitalRead(DoorPins[1]) == LOW) {
       doorOpen = false;
-      Serial.println("DOOR CLOSED");
-      Serial.println("");
+      processDoorState(2, 0, 255, 0);
     }
     else{
-      Serial.println("STILL OPEN");
+      processDoorState(1, 255, 0, 0);
     }
     //delay to prevent saturating the serial line
     delay(100);
   }
+}
+
+void processDoorState(int state, int red, int green, int blue){
+      if(state == 1)
+        streamer.sync("doorState", "OPEN");
+      else if (state = 2){
+        streamer.sync("doorState", "CLOSED");
+      }
+        streamer.sync("Red",red);
+        streamer.sync("Green",green);
+        streamer.sync("Blue",blue);
 }
 
 
