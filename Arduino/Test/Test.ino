@@ -5,14 +5,11 @@ AP_Sync streamer(Serial);
 void setup() {
   Serial.begin(9600);
   pinMode(13,OUTPUT);
-  delay(5000);
 }
 
 void loop() {
-
-    String command;
-
-    Serial.println("CUNT");
+  if(Serial.available()){
+    String command = Serial.readString();
     if(command == "on"){
       digitalWrite(13,HIGH);
     }else if (command == "off") {
@@ -27,3 +24,4 @@ void loop() {
       digitalWrite(13,LOW);
     }
   }
+}
