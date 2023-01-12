@@ -42,9 +42,15 @@ def emergency_stop():
     print('Sent emergency stop command')
     stop_button.state(["disabled"])
     resume_button.state(["!disabled"])
+    pin4_button.config(state='disabled')
+    pin5_button.config(state='disabled')
+    pin6_button.config(state='disabled')
+    pin7_button.config(state='disabled')
+    pin8_button.config(state='disabled')
+    pin12_button.config(state='disabled')
 
 stop_button = ttk.Button(window, text="Emergency Stop", command=emergency_stop, style ="RedEmerg.TButton")
-stop_button.pack(side='top')
+stop_button.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
 # Create resume button
 def resume():
@@ -52,9 +58,15 @@ def resume():
     print('Sent resume command')
     stop_button.state(["!disabled"])
     resume_button.state(["disabled"])
+    pin4_button.config(state='normal')
+    pin5_button.config(state='normal')
+    pin6_button.config(state='normal')
+    pin7_button.config(state='normal')
+    pin8_button.config(state='normal')
+    pin12_button.config(state='normal')
 
 resume_button = ttk.Button(window, text="Resume", command=resume, style ="GreenRes.TButton", state = "disabled")
-resume_button.pack(side='top')
+resume_button.grid(row=1, column=1, padx=10, pady=10, sticky="w")
 
 # Create radio buttons to control Arduino pins
 pin_var = tk.IntVar()
@@ -77,24 +89,24 @@ def update_pin(name, index, mode):
 pin_var.trace('w', update_pin)
 
 pin4_button = tk.Radiobutton(text="0%", variable=pin_var, value=4)
-pin4_button.pack(side='left',padx=10, pady=10)
 
 pin5_button = tk.Radiobutton(text="20%", variable=pin_var, value=5)
-pin5_button.pack(side='left',padx=10, pady=10)
 
 pin6_button = tk.Radiobutton(text="40%", variable=pin_var, value=6)
-pin6_button.pack(side='left',padx=10, pady=10)
 
 pin7_button = tk.Radiobutton(text="60%", variable=pin_var, value=7)
-pin7_button.pack(side='left',padx=10, pady=10)
 
 pin8_button = tk.Radiobutton(text="80%", variable=pin_var, value=8)
-pin8_button.pack(side='left',padx=10, pady=10)
 
 pin12_button = tk.Radiobutton(text="100%", variable=pin_var, value=12)
-pin12_button.pack(side='left',padx=10, pady=10)
 
-
+# Line up the buttons in the first column, with one button per row
+pin4_button.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+pin5_button.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+pin6_button.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+pin7_button.grid(row=3, column=0, padx=5, pady=5, sticky="w")
+pin8_button.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+pin12_button.grid(row=4, column=0, padx=5, pady=5, sticky="w")
 
 
 # Close serial port when window is closed
