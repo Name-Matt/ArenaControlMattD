@@ -1,27 +1,13 @@
-#include <AP_Sync.h>
-
-AP_Sync streamer(Serial);
-
 void setup() {
+  // Initialize serial communication at 9600 baud
   Serial.begin(9600);
-  pinMode(13,OUTPUT);
 }
 
 void loop() {
-  if(Serial.available()){
-    String command = Serial.readString();
-    if(command == "on"){
-      digitalWrite(13,HIGH);
-    }else if (command == "off") {
-      digitalWrite(13,LOW);
-    }else {
-      digitalWrite(13,HIGH);
-      delay(200);
-      digitalWrite(13,LOW);
-      delay(200);
-      digitalWrite(13,HIGH);
-      delay(200);
-      digitalWrite(13,LOW);
-    }
-  }
+  // Read the value of pin A0
+  int sensorValue = analogRead(A0);
+  // Send the value over serial
+  Serial.println("Connected to Arena");
+  // Wait for a bit before reading the next value
+  delay(100);
 }

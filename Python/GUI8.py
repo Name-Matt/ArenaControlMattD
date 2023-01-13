@@ -15,7 +15,7 @@ import serial.tools.list_ports
 
 # Set up serial communication with Arduino
 ser = serial.Serial('COM3', 9600)
-
+ser.reset_input_buffer()
 
 # Create main window
 window = tk.Tk()
@@ -23,6 +23,10 @@ window.title("Arduino Control")
 
 # Call in the created styles
 GUIStyles.create_styles()
+
+
+
+##############################################################################
 
 # 'New' button in File menu in toolbar
 def on_file_new():
@@ -58,6 +62,8 @@ def on_closing():
 
 window.protocol("WM_DELETE_WINDOW", on_closing)
 
+##############################################################################
+
 # Create a menu bar
 menubar = tk.Menu(window)
 window.config(menu=menubar)
@@ -91,42 +97,49 @@ help_menu = tk.Menu(menubar)
 menubar.add_cascade(label="Help", menu=help_menu)
 help_menu.add_command(label="About", command=on_help_about)
 
+##############################################################################
+
 # Colours used in the seperate sections
-spinColour = 'pink'
-CTColour = 'green'
-GMColour = 'yellow'
+SPINCOLOUR = 'pink'
+CTCOLOUR = 'green'
+GMCOLOUR = 'yellow'
 
 # Set up padding and location varaibles
-radioButtonsPadX = 10
-radioButtonsPadY = 5
-buttonPadX = 10
-buttonPadY = 1
-framePad = 2
-radioButtonColumn = 0   #spin button locations
-radioButtonRow = 2
-CTButtonColumn = 1  #Corner Trap button locations
-CTButtonRow = 2
-GMButtonColumn = 2  #Game Mode button locations
-GMButtonRow = 2
+RADIOBUTTONSBUTTONX = 10
+RADIOBUTTONSBUTTONY = 5
+BUTTONPADX = 10
+BUTTONPADY = 1
+FRAMEPAD = 2
+RADIOBUTTONCOLUMN = 0   #spin button locations
+RADIOBUTTONROW = 2
+CTBUTTONCOLUMN = 1  #Corner Trap button locations
+CTBUTTONROW = 2
+GMBUTTONCOLUMN = 2  #Game Mode button locations
+GMBUTTONROW = 2
 
 # Create a boarder around the spin speed radio buttons
-spin_frame = tk.Frame(window, bg=spinColour, bd=1, relief='solid')
-spin_frame.grid(row=radioButtonRow, column=radioButtonColumn, rowspan=7, padx=framePad, pady=framePad, sticky='nsew')
+spin_frame = tk.Frame(window, bg=SPINCOLOUR, bd=1, relief='solid')
+spin_frame.grid(row=RADIOBUTTONROW, column=RADIOBUTTONCOLUMN, rowspan=7, padx=FRAMEPAD, pady=FRAMEPAD, sticky='nsew')
 
 # Create a boarder around the corner trap buttons
-CT_frame = tk.Frame(window, bg=CTColour, bd=1, relief='solid')
-CT_frame.grid(row=CTButtonRow, column=CTButtonColumn, rowspan=3, padx=framePad, pady=framePad, sticky='nsew')
+CT_frame = tk.Frame(window, bg=CTCOLOUR, bd=1, relief='solid')
+CT_frame.grid(row=CTBUTTONROW, column=CTBUTTONCOLUMN, rowspan=3, padx=FRAMEPAD, pady=FRAMEPAD, sticky='nsew')
 
 # Create a boarder around the game mode buttons
-GM_frame = tk.Frame(window, bg=GMColour, bd=1, relief='solid')
-GM_frame.grid(row=GMButtonRow, column=GMButtonColumn, rowspan=7, padx=framePad, pady=framePad, sticky='nsew')
+GM_frame = tk.Frame(window, bg=GMCOLOUR, bd=1, relief='solid')
+GM_frame.grid(row=GMBUTTONROW, column=GMBUTTONCOLUMN, rowspan=7, padx=FRAMEPAD, pady=FRAMEPAD, sticky='nsew')
+
+##############################################################################
 
 # Create emergency stop button
 def emergency_stop():
-    ser.write(b'E')
-    print('Sent emergency stop command')
-    stop_button.state(["disabled"])
-    resume_button.state(["!disabled"])
+    ser.write(b'E') #sends recognizeable char to arduino
+    ser.readline().decode().strip() #clears serial buffer after sending
+    print('Sent emergency stop command')    #prints info for debug
+    stop_button.state(["disabled"]) #disables the emergency stop button
+    resume_button.state(["!disabled"])  #enables resume button
+    
+    #disables all other control buttons whilst in emergency stop mode
     pin4_button.config(state='disabled')
     pin5_button.config(state='disabled')
     pin6_button.config(state='disabled')
@@ -140,13 +153,16 @@ def emergency_stop():
     GM3_button.config(state='disabled')
     GM4_button.config(state='disabled')
     GM5_button.config(state='disabled')
+    window.after(100, update_con_label) #updates the status in GUI
+    
 
 stop_button = ttk.Button(window, text="Emergency Stop", command=emergency_stop, style ='RedEmerg.TButton')
-stop_button.grid(row=0, column=0, columnspan = 3, padx=buttonPadX, pady=buttonPadY, sticky="nsew")
+stop_button.grid(row=0, column=0, columnspan = 3, padx=BUTTONPADX, pady=BUTTONPADY, sticky="nsew")
 
 # Create resume button
 def resume():
     ser.write(b'R')
+    ser.readline().decode().strip()
     print('Sent resume command')
     stop_button.state(["!disabled"])
     resume_button.state(["disabled"])
@@ -163,10 +179,13 @@ def resume():
     GM3_button.config(state='normal')
     GM4_button.config(state='normal')
     GM5_button.config(state='normal')
+    window.after(100, update_con_label)
 
 
 resume_button = ttk.Button(window, text="Resume", command=resume, style ="GreenRes.TButton", state = "disabled")
-resume_button.grid(row=1, column=0, columnspan = 3, padx=buttonPadX, pady=buttonPadY, sticky="nsew")
+resume_button.grid(row=1, column=0, columnspan = 3, padx=BUTTONPADX, pady=BUTTONPADY, sticky="nsew")
+
+##############################################################################
 
 # Create corner trap enable button
 def CT_enb():
@@ -177,7 +196,7 @@ def CT_enb():
 
 
 CT_enb_button = ttk.Button(CT_frame, text="LOWER", command=CT_enb, style ="CTStyle.TButton")
-CT_enb_button.grid(row=CTButtonRow+1, column=CTButtonColumn, rowspan=2, padx=buttonPadX, pady=buttonPadY, sticky="w")
+CT_enb_button.grid(row=CTBUTTONROW+1, column=CTBUTTONCOLUMN, rowspan=2, padx=BUTTONPADX, pady=BUTTONPADY, sticky="w")
 
 # Create corner trap disable button
 def CT_disb():
@@ -187,7 +206,9 @@ def CT_disb():
     CT_disb_button.state(["disabled"])
 
 CT_disb_button = ttk.Button(CT_frame, text="RAISE", command=CT_disb, style ="CTStyle.TButton", state = "disabled")
-CT_disb_button.grid(row=CTButtonRow+3, column=CTButtonColumn, rowspan=2, padx=buttonPadX, pady=buttonPadY, sticky="w")
+CT_disb_button.grid(row=CTBUTTONROW+3, column=CTBUTTONCOLUMN, rowspan=2, padx=BUTTONPADX, pady=BUTTONPADY, sticky="w")
+
+##############################################################################
 
 # Create game mode buttons
 def GM_1():
@@ -196,7 +217,7 @@ def GM_1():
 
 
 GM1_button = ttk.Button(GM_frame, text="Mode 1", command=GM_1, style ="GM1Style.TButton", state = "normal")
-GM1_button.grid(row=GMButtonRow+1, column=GMButtonColumn, rowspan=1, padx=buttonPadX, pady=buttonPadY, sticky="w")
+GM1_button.grid(row=GMBUTTONROW+1, column=GMBUTTONCOLUMN, rowspan=1, padx=BUTTONPADX, pady=BUTTONPADY, sticky="w")
 
 def GM_2():
     ser.write(b'N')
@@ -204,7 +225,7 @@ def GM_2():
 
 
 GM2_button = ttk.Button(GM_frame, text="Mode 2", command=GM_2, style ="GM2Style.TButton", state = "normal")
-GM2_button.grid(row=GMButtonRow+2, column=GMButtonColumn, rowspan=1, padx=buttonPadX, pady=buttonPadY, sticky="w")
+GM2_button.grid(row=GMBUTTONROW+2, column=GMBUTTONCOLUMN, rowspan=1, padx=BUTTONPADX, pady=BUTTONPADY, sticky="w")
 
 def GM_3():
     ser.write(b'O')
@@ -212,7 +233,7 @@ def GM_3():
 
 
 GM3_button = ttk.Button(GM_frame, text="Mode 3", command=GM_3, style ="GM3Style.TButton", state = "normal")
-GM3_button.grid(row=GMButtonRow+3, column=GMButtonColumn, rowspan=1, padx=buttonPadX, pady=buttonPadY, sticky="w")
+GM3_button.grid(row=GMBUTTONROW+3, column=GMBUTTONCOLUMN, rowspan=1, padx=BUTTONPADX, pady=BUTTONPADY, sticky="w")
 
 def GM_4():
     ser.write(b'P')
@@ -220,7 +241,7 @@ def GM_4():
 
 
 GM4_button = ttk.Button(GM_frame, text="Mode 4", command=GM_4, style ="GM4Style.TButton", state = "normal")
-GM4_button.grid(row=GMButtonRow+4, column=GMButtonColumn, rowspan=1, padx=buttonPadX, pady=buttonPadY, sticky="w")
+GM4_button.grid(row=GMBUTTONROW+4, column=GMBUTTONCOLUMN, rowspan=1, padx=BUTTONPADX, pady=BUTTONPADY, sticky="w")
 
 def GM_5():
     ser.write(b'Q')
@@ -228,9 +249,9 @@ def GM_5():
 
 
 GM5_button = ttk.Button(GM_frame, text="Mode 5", command=GM_5, style ="GM5Style.TButton", state = "normal")
-GM5_button.grid(row=GMButtonRow+5, column=GMButtonColumn, rowspan=1, padx=buttonPadX, pady=buttonPadY, sticky="w")
+GM5_button.grid(row=GMBUTTONROW+5, column=GMBUTTONCOLUMN, rowspan=1, padx=BUTTONPADX, pady=BUTTONPADY, sticky="w")
 
-
+##############################################################################
 
 # Create radio buttons to control Arduino pins
 pin_var = tk.IntVar()
@@ -253,36 +274,53 @@ def update_pin(name, index, mode):
 pin_var.trace('w', update_pin)
 
 # Create the actual radio buttons for spin speed and place them in the correct places
-pin4_button = tk.Radiobutton(spin_frame, text="0%", bg=spinColour, variable=pin_var, value=4)
-pin5_button = tk.Radiobutton(spin_frame, text="20%", bg=spinColour, variable=pin_var, value=5)
-pin6_button = tk.Radiobutton(spin_frame, text="40%", bg=spinColour, variable=pin_var, value=6)
-pin7_button = tk.Radiobutton(spin_frame, text="60%", bg=spinColour, variable=pin_var, value=7)
-pin8_button = tk.Radiobutton(spin_frame, text="80%", bg=spinColour, variable=pin_var, value=8)
-pin12_button = tk.Radiobutton(spin_frame, text="100%", bg=spinColour, variable=pin_var, value=12)
+pin4_button = tk.Radiobutton(spin_frame, text="0%", bg=SPINCOLOUR, variable=pin_var, value=4)
+pin5_button = tk.Radiobutton(spin_frame, text="20%", bg=SPINCOLOUR, variable=pin_var, value=5)
+pin6_button = tk.Radiobutton(spin_frame, text="40%", bg=SPINCOLOUR, variable=pin_var, value=6)
+pin7_button = tk.Radiobutton(spin_frame, text="60%", bg=SPINCOLOUR, variable=pin_var, value=7)
+pin8_button = tk.Radiobutton(spin_frame, text="80%", bg=SPINCOLOUR, variable=pin_var, value=8)
+pin12_button = tk.Radiobutton(spin_frame, text="100%", bg=SPINCOLOUR, variable=pin_var, value=12)
 
 
 # Line up the radio buttons in the first column, with one button per row
-pin4_button.grid(row=radioButtonRow+1, column=radioButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="w")
-pin5_button.grid(row=radioButtonRow+2, column=radioButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="w")
-pin6_button.grid(row=radioButtonRow+3, column=radioButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="w")
-pin7_button.grid(row=radioButtonRow+4, column=radioButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="w")
-pin8_button.grid(row=radioButtonRow+5, column=radioButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="w")
-pin12_button.grid(row=radioButtonRow+6, column=radioButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="w")
+pin4_button.grid(row=RADIOBUTTONROW+1, column=RADIOBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="w")
+pin5_button.grid(row=RADIOBUTTONROW+2, column=RADIOBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="w")
+pin6_button.grid(row=RADIOBUTTONROW+3, column=RADIOBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="w")
+pin7_button.grid(row=RADIOBUTTONROW+4, column=RADIOBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="w")
+pin8_button.grid(row=RADIOBUTTONROW+5, column=RADIOBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="w")
+pin12_button.grid(row=RADIOBUTTONROW+6, column=RADIOBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="w")
+
+##############################################################################
+
+def update_con_label():
+    # Read data from the serial port
+    data = ser.readline().decode().strip()
+    print(data)
+    # Update the label with the new data
+    data_label.config(text=data)
+    # Call this function again after 100ms
+    #window.after(100, update_con_label)
+    
+# Create a label to display the serial data
+data_label = tk.Label(window, text="Waiting for serial data...")
+data_label.grid(row=8, column=1)
+
+##############################################################################
 
 # Label the spin speed column
-spinSpeedLabel = tk.Label(spin_frame, text="Spin Speed", bg=spinColour)
-spinSpeedLabel.grid(row=radioButtonRow, column=radioButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="nsew")
+spinSpeedLabel = tk.Label(spin_frame, text="Spin Speed", bg=SPINCOLOUR)
+spinSpeedLabel.grid(row=RADIOBUTTONROW, column=RADIOBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="nsew")
 
 # Label the corner trap column
-CTLabel = tk.Label(CT_frame, text="Corner Trap", bg=CTColour)
-CTLabel.grid(row=CTButtonRow, column=CTButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="nsew")
+CTLabel = tk.Label(CT_frame, text="Corner Trap", bg=CTCOLOUR)
+CTLabel.grid(row=CTBUTTONROW, column=CTBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="nsew")
 
 # Label the game mode column
-GMLabel = tk.Label(GM_frame, text="Game Mode", bg=GMColour)
-GMLabel.grid(row=GMButtonRow, column=GMButtonColumn, padx=radioButtonsPadX, pady=radioButtonsPadY, sticky="nsew")
+GMLabel = tk.Label(GM_frame, text="Game Mode", bg=GMCOLOUR)
+GMLabel.grid(row=GMBUTTONROW, column=GMBUTTONCOLUMN, padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="nsew")
 
 
 
 
-
+window.after(100, update_con_label)
 window.mainloop()

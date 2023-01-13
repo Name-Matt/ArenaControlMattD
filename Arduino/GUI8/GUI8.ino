@@ -13,10 +13,11 @@ int pin7State = 0;
 int pin8State = 0;
 int pin12State = 0;
 
-int LEDpins[3] = { 9, 10, 11 };                    //pins used for LED control (RGB) - MUST BE PWM PINS
+int LEDpins[3] = { 9, 10, 11 }; //pins used for LED control (RGB) - MUST BE PWM PINS
 int redState = 0;
 int greenState = 255;
 int blueState = 200;
+String serialInfo = "Test";
 
 void setup() {
   // Set all pins as output
@@ -37,6 +38,8 @@ void setup() {
 
   // Set up serial communication
   Serial.begin(9600);
+  // Send the value over serial
+  Serial.println("Connected to Arena");
 }
 
 void setLEDColour(int redLED, int greenLED, int blueLED) {
@@ -69,6 +72,7 @@ void loop() {
       digitalWrite(pin8, LOW);
       digitalWrite(pin12, LOW);
       setLEDColour(255,0,0);
+      Serial.println("EMERGENCY STOP ACTIVATED");
     }
     // Resume commmand
     else if (inByte == 'R') {
@@ -79,6 +83,7 @@ void loop() {
       digitalWrite(pin8, pin8State);
       digitalWrite(pin12, pin12State);
       setLEDColour(redState,greenState,blueState);
+      Serial.println(serialInfo);
     }
     // Pin 4 command
     else if (inByte == '0') {
@@ -88,6 +93,8 @@ void loop() {
       digitalWrite(pin7, LOW);
       digitalWrite(pin8, LOW);
       digitalWrite(pin12, LOW);
+      serialInfo = "Spin Speed 0%";
+      Serial.println(serialInfo);
 
       pin4State = 1;
       pin5State = 0;
