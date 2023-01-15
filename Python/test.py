@@ -1,155 +1,116 @@
-import serial
 import tkinter as tk
-from tkinter import ttk
-import time
+import serial
 import threading
 
 
-
-
-class Application(tk.Tk):
-    rel_entrywidth_y= 0.02
-    baud_rate_list = [1200, 1800, 2400, 4800, 7200, 9600, 14400, 19200]
-    HEIGHT = 650
-    WIDTH = 750
-    
+class ArduinoControl(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("SERIAL COMMUNICATION")
-        self.default_com = 'COM13'
-        self.connect_state = "Not Connected"
-        self.data = []
-        self.temp = []
-        self.createWidgets()
-
-
-
-
-
-    def createWidgets(self):
-        self.canvas = tk.Canvas(self, width=self.WIDTH, height=self.HEIGHT, bg='#adadad')
-        self.canvas.pack()
+        self.ser = serial.Serial("COM3", 9600)  # open serial port
+        self.title("Arduino Control")
+        # flag to track state of thread
+        self.stop_thread = tk.BooleanVar(value=False)
         
-        self.port_label = tk.Label(self.canvas, text="Select Port:", font="Courier 12", bg = '#adadad')
-        self.port_label.place(anchor='nw', relx=0.01, rely=self.rel_entrywidth_y, relwidth=0.18, relheight=0.05)
+        # Colours used in the seperate sections
+        SPINCOLOUR = 'pink'
+        CTCOLOUR = 'green'
+        GMCOLOUR = 'yellow'
 
-        self.port_entry = tk.Entry(self.canvas, text='COM1', font="Courier 12", bg='#A6CCF0', justify='center')
-        self.port_entry.insert(0, self.default_com)
-        self.port_entry.place(anchor='nw', relx=0.21, rely=self.rel_entrywidth_y, relwidth=0.18, relheight=0.05)
+        # Set up padding and location varaibles
+        RADIOBUTTONSBUTTONX = 10
+        RADIOBUTTONSBUTTONY = 5
+        BUTTONPADX = 10
+        BUTTONPADY = 1
+        FRAMEPAD = 2
+        RADIOBUTTONCOLUMN = 0  # spin button locations
+        RADIOBUTTONROW = 1
+        CTBUTTONCOLUMN = 2  # Corner Trap button locations
+        CTBUTTONROW = 1
+        GMBUTTONCOLUMN = 4  # Game Mode button locations
+        GMBUTTONROW = 1
 
-        self.baud_rate_var = tk.StringVar(self.canvas)
-        self.baud_rate_var.set(self.baud_rate_list[5])           # set default baud rate
+        # Create a boarder around the spin speed radio buttons
+        self.spin_frame = tk.Frame(self, bg=SPINCOLOUR, bd=1, relief='solid')
+        self.spin_frame.grid(row=RADIOBUTTONROW, column=RADIOBUTTONCOLUMN,
+                        rowspan=8, padx=FRAMEPAD, pady=FRAMEPAD, sticky='nsew')
+        # Label the spin speed column
+        self.spinSpeedLabel = tk.Label(self.spin_frame, text="Spin Speed", bg=SPINCOLOUR)
+        self.spinSpeedLabel.grid(row=RADIOBUTTONROW+1, column=RADIOBUTTONCOLUMN,
+                            padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="nsew")
 
-        self.baud_label = tk.Label(self.canvas, text="  Baud Rate:", font="Courier 12", bg = '#adadad')
-        self.baud_label.place(anchor='nw', relx=0.4, rely=self.rel_entrywidth_y, relwidth=0.18, relheight=0.05)
+        # Create a boarder around the corner trap buttons
+        self.ct_frame = tk.Frame(self, bg=CTCOLOUR, bd=1, relief='solid')
+        self.ct_frame.grid(row=CTBUTTONROW, column=CTBUTTONCOLUMN, rowspan=8,
+                      padx=FRAMEPAD, pady=FRAMEPAD, sticky='nsew')
+        # Label the corner trap column
+        self.ctLabel = tk.Label(self.ct_frame, text="Corner Trap", bg=CTCOLOUR)
+        self.ctLabel.grid(row=CTBUTTONROW, column=CTBUTTONCOLUMN,
+                     padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="nsew")
 
-        self.baud_menu = tk.OptionMenu(self, self.baud_rate_var, *self.baud_rate_list)
-        self.baud_menu.config(font='Courier 12', bg='#A6CCF0')
-        self.baud_menu.place(anchor='nw', relx=0.6, rely=self.rel_entrywidth_y, relwidth=0.18, relheight=0.05)
-
-        self.connect_button = tk.Button(self.canvas, text='Connect', font='Courier 12 bold', command=self.connect_func)
-        self.connect_button.place(anchor='nw', relx=0.815, rely=self.rel_entrywidth_y, relwidth=0.15, relheight=0.05)
-
-        self.canvas.create_line(0, 60, self.WIDTH, 60, width=1)
-
-        #self.canvas.create_line(0, 570, WIDTH, 570, width=1)
-
-        #self.separator1 = ttk.Separator(self.canvas, orient='horizontal', bg='#adadad')
-        #self.separator1.place(relx=0, rely=0.5, relwidth=1, relheight=0.5)
-
-
-        self.comm_text = tk.Text(self, width=40, height=10, font='Courier 12', state='disabled')
-        self.comm_text.place(anchor='n', relx=0.63, rely=0.1, relwidth=0.7, relheight=0.75)
-        self.comm_vsb = tk.Scrollbar(self, orient='vertical', command=self.comm_text.yview)
-        self.comm_vsb.place(anchor='n', relx=0.985, rely=0.101, relwidth=0.03, relheight=0.749)
-
-        self.send_button = tk.Button(self.canvas, text='Send', font='Courier 12 bold', command=threading.Thread(target=self.send_data).start())
-        self.send_button.place(anchor='n', relx=0.9, rely=0.89, relwidth=0.15, relheight=0.07)
+        # Create a boarder around the game mode buttons
+        self.gm_frame = tk.Frame(self, bg=GMCOLOUR, bd=1, relief='solid')
+        self.gm_frame.grid(row=GMBUTTONROW, column=GMBUTTONCOLUMN, rowspan=8,
+                      padx=FRAMEPAD, pady=FRAMEPAD, sticky='nsew')
+        # Label the game mode column
+        self.gmLabel = tk.Label(self.gm_frame, text="Game Mode", bg=GMCOLOUR)
+        self.gmLabel.grid(row=GMBUTTONROW, column=GMBUTTONCOLUMN,
+                     padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="nsew")
         
-        self.data_entry = tk.Entry(self.canvas, font="Courier 14", bg='#d1d1d1', justify='left')
-        self.data_entry.place(anchor='n', relx=0.41, rely=0.875, relwidth=0.8, relheight=0.1)
+        # Emergency stop button
+        self.stop_button = tk.Button(
+            self, text="Emergency Stop", command=self.stop, bg="red")
+        self.stop_button.grid(row=0, column=0, columnspan=2,
+                              padx=BUTTONPADX, pady=BUTTONPADY, sticky="nsew")
+        #self.stop_button.config(height=3, width=15)
 
+        # Resume button
+        self.resume_button = tk.Button(
+            self, text="Resume", command=self.resume, state="disable", bg="green")
+        self.resume_button.grid(
+            row=0, column=3, columnspan=2, padx=BUTTONPADX, pady=BUTTONPADY, sticky="nsew")
+        #self.resume_button.config(height=3, width=15)
         
-        self.img = tk.PhotoImage(file='serial.png')
-        self.img = self.img.subsample(9)
-        self.canvas.create_image(50, 500, anchor='nw', image=self.img)
-
-
-
-
-    def connect_func(self):
-        if self.connect_state == "Not Connected":
-            self.com_port = self.port_entry.get()
-            self.baud_rate = self.baud_rate_var.get()
-            self.connect_button['text'] = "Close"
-            self.update_idletasks()               # making sure it changes to "Close"
-            print("COM PORT IS : ", self.com_port)
-            print("BAUD RATE IS : ", self.baud_rate)
-            try:
-                self.ser = serial.Serial(self.com_port, self.baud_rate)
-                self.connect_state = "Connected"
-                print("Connected to", self.com_port, "successfully!")
-                self.after(500, threading.Thread(target=self.receive_data()).start())
-    
-            except Exception as e:
-                print("Error connecting to port ", self.com_port, " ... ", e)
-                self.connect_button['text'] = "Connect"
-                self.connect_state = "Not Connected"
-                
-
-
-        elif self.connect_state == "Connected":
-            self.ser.close()
-            print("Closing serial connection with port", self.com_port)
-            self.connect_button['text'] = "Connect"
-            self.connect_state = "Not Connected"
-  
-
-
-
-    def send_data(self):
-        if self.connect_state == "Connected":
-            self.send_data = self.data_entry.get()
-            self.ser.write(self.send_data.encode())
-            print("SENDING... : " + self.send_data)
-            self.data.append(self.send_data)
-            self.refresh_comms(self.send_data)
-        else:
-            print("Connect to a serial port first...")
-
-
-
-    def refresh_comms(self, d):
-        #print("temp : ", self.temp)
-        #print("data : ", d)
-        if len(self.temp) < len(d):             # if data has been added
-            self.comm_text.configure(state='normal')
-            self.comm_text.insert('end', d[len(d)-1] + '\n')
-            self.comm_text.see('end')                     # scroll text
-            self.comm_text.configure(state='disabled')
-            self.update_idletasks()
-            self.temp.append(d[len(d)-1]) 
+        # Percentage buttons
+        self.percentage = tk.StringVar()
+        self.percentage.set("0")
+        self.percentage_buttons = []
+        for i in range(6):
+            button = tk.Radiobutton(self, text=str(
+                (i)*20) + "%", variable=self.percentage, value=str(i), command=self.set_percentage)
+            self.percentage_buttons.append(button)
+            button.grid(row=RADIOBUTTONROW+2+i, column=RADIOBUTTONCOLUMN, padx=10, pady=5)
+            
+    def set_percentage(self):
+        """Set the percentage level"""
+        self.ser.write(self.percentage.get().encode())
         
-        self.update_idletasks()
-        self.after(500, self.receive_data)
-
-
-
-
-    def receive_data(self):
-        if self.ser.in_waiting:
-            received = self.ser.readline().decode()
-            self.data.append(str(self.com_port) + ' : ' + received)
-            print("I received :", received)
+    def stop(self):
+        """Emergency stop button"""
+        self.ser.write(b'E')
+        self.stop_button.config(state="disable")
+        self.resume_button.config(state="normal")
+        for button in self.percentage_buttons + self.game_mode_buttons:
+            button.config(state="disable")
+        self.enable_button.config(state="disable")
+        self.disable_button.config(state="disable")
         
-        self.update_idletasks()
-        self.after(500, self.refresh_comms(self.data))
+    def resume(self):
+        """Resume button"""
+        self.ser.write(b'R')
+        self.stop_button.config(state="normal")
+        self.resume_button.config(state="disable")
+        for button in self.percentage_buttons + self.game_mode_buttons:
+            button.config(state="normal")
+        self.enable_button.config(state="normal")
+        self.disable_button.config(state="normal")
+        
+    def close(self):
+        self.stop_thread.set(True)
+        self.ser.close()
+        super().destroy()
 
 
-
-
-
-app = Application()
-app.resizable(False, False)
-
-app.mainloop()
+if __name__ == "__main__":
+    app = ArduinoControl()
+    app.protocol("WM_DELETE_WINDOW", app.close)
+    app.mainloop()

@@ -17,6 +17,8 @@ import GUIStyles
 ser = serial.Serial('COM3', 9600)
 ser.reset_input_buffer()
 
+
+
 # Create main window
 window = tk.Tk()
 window.title("Arduino Control")
@@ -373,6 +375,7 @@ pin8_button = tk.Radiobutton(
     spin_frame, text="80%", bg=SPINCOLOUR, variable=pin_var, value=8)
 pin12_button = tk.Radiobutton(
     spin_frame, text="100%", bg=SPINCOLOUR, variable=pin_var, value=12)
+
 
 
 # Line up the radio buttons in the first column, with one button per row
