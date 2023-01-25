@@ -1,9 +1,27 @@
-int SpinPins[6] = { 4, 5, 6, 7, 8, 12 };           //the pins used for spinning motor
+// Include the Stepper library:
+#include <Stepper.h>
+
+int SpinPins[6] = {A0, A1, A2, A3, A4, A5};           //the pins used for spinning motor
 int SpinPinsLen = sizeof(SpinPins) / sizeof(int);  //length of the array holding the pins
-int LEDpins[3] = { 9, 10, 11 };                    //pins used for LED control (RGB) - MUST BE PWM PINS
+int LEDpins[3] = {5, 6, 10};                    //pins used for LED control (RGB) - MUST BE PWM PINS
 int LEDpinsLen = sizeof(LEDpins) / sizeof(int);
-int DoorPins[2] = { 2, 3 };  //pins used for door sensors - MUST BE INTERRUPT PINS
-int DoorPinsLen = sizeof(DoorPins) / sizeof(int);
+
+#define doorSensor 2
+
+
+// Give the motor control pins names:
+#define pwmA 3
+#define pwmB 11
+#define brakeA 9
+#define brakeB 8
+#define dirA 12
+#define dirB 13
+
+// Define number of steps per revolution:
+const int stepsPerRevolution = 200;
+
+// Initialize the stepper library on the motor shield:
+Stepper myStepper = Stepper(stepsPerRevolution, dirA, dirB);
 
 
 int pin4State = 0;
@@ -26,7 +44,7 @@ void setup() {
   Serial.begin(9600);
 
   //decide if the doors are open or closed at start
-  if ((digitalRead(DoorPins[0]) == LOW) && (digitalRead(DoorPins[1]) == LOW)) {
+  if (digitalRead(doorSensor) == LOW) {
     doorOpen = false;
     serialInfo = "DOOR CLOSE @ START";
     Serial.println(serialInfo);
@@ -38,20 +56,32 @@ void setup() {
 
   //declare pinMode for spin motor controller pins
   for (int i = 0; i < SpinPinsLen; i++) {
-    pinMode(SpinPins[i], INPUT);
-    Serial.println(SpinPins[i]);  //DEBUG prints to serial once been initialised
+    pinMode(SpinPins[i], OUTPUT);
+    //Serial.println(SpinPins[i]);  //DEBUG prints to serial once been initialised
   }
   //declare pinMode for LED pins
   for (int i = 0; i < LEDpinsLen; i++) {
     pinMode(LEDpins[i], OUTPUT);
-    Serial.println(LEDpins[i]);  //DEBUG prints to serial once been initialised
+    //Serial.println(LEDpins[i]);  //DEBUG prints to serial once been initialised
   }
   //declare pinMode for door sensor pins
-  for (int i = 0; i < DoorPinsLen; i++) {
-    pinMode(DoorPins[i], INPUT_PULLUP);
-    Serial.println(DoorPins[i]);  //DEBUG prints to serial once been initialised
-    attachInterrupt(digitalPinToInterrupt(DoorPins[i]), doorOPENED_ISR, FALLING);
-  }
+  pinMode(doorSensor, INPUT_PULLUP);
+  //Serial.println(doorSensor);  //DEBUG prints to serial once been initialised
+  attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
+
+  // Set the PWM and brake pins so that the direction pins can be used to control the motor:
+  pinMode(pwmA, OUTPUT);
+  pinMode(pwmB, OUTPUT);
+  pinMode(brakeA, OUTPUT);
+  pinMode(brakeB, OUTPUT);
+
+  digitalWrite(pwmA, HIGH);
+  digitalWrite(pwmB, HIGH);
+  digitalWrite(brakeA, LOW);
+  digitalWrite(brakeB, LOW);
+
+  // Set the motor speed (RPMs):
+  myStepper.setSpeed(60);
 
   setLEDColour(255, 0, 40);  //sets lights pink to start
   // Send the value over serial
@@ -82,7 +112,7 @@ void doorOPENED_ISR() {  //what to do if door is open
   while (doorOpen == true) {
     Serial.println("TRUE");
     //will break the while loop if the door is shut
-    if ((digitalRead(DoorPins[0]) == LOW) && digitalRead(DoorPins[1]) == LOW) {
+    if (digitalRead(doorSensor) == LOW) {
       doorOpen = false;
       serialInfo = "DOOR SHUT - RESUME";
       Serial.println(serialInfo);
@@ -238,11 +268,13 @@ void loop() {
     else if (inByte == 'C') {
       serialInfo = "Corner Trap Enabled";
       Serial.println(serialInfo);
+      myStepper.step(200);
     }
     // Corner Trap Disable
     else if (inByte == 'D') {
       serialInfo = "Corner Trap Disabled";
       Serial.println(serialInfo);
+      myStepper.step(-200);
     }
     // Game Mode 1
     else if (inByte == 'M') {

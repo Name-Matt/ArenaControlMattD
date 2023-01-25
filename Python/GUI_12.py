@@ -94,12 +94,14 @@ class ArduinoControl(tk.Tk):
            self.ct_frame, text="RAISE", command=self.enable, style="CTStyle.TButton", state="disabled")
         self.enable_button.grid(
             row=CTBUTTONROW+1, column=CTBUTTONCOLUMN, padx=10, pady=5)
+        self.enable_button_state = "disabled"
 
 
         self.disable_button = ttk.Button(self.ct_frame, text="LOWER",
                                   command=self.disable, style="CTStyle.TButton")
         self.disable_button.grid(
             row=CTBUTTONROW+2, column=CTBUTTONCOLUMN, padx=10, pady=5)
+        self.disable_button_state = "normal"
 
         # Game mode buttons
         self.game_mode = tk.StringVar()
@@ -129,7 +131,7 @@ class ArduinoControl(tk.Tk):
 
     def stop(self):
         """Emergency stop button"""
-        self.ser.write(b'E')
+        self.ser.write(b'E')    #the b means it is a byte string
         self.stop_button.config(state="disable")
         self.resume_button.config(state="normal")
         for button in self.percentage_buttons + self.game_mode_buttons:
@@ -144,8 +146,8 @@ class ArduinoControl(tk.Tk):
         self.resume_button.config(state="disable")
         for button in self.percentage_buttons + self.game_mode_buttons:
             button.config(state="normal")
-        self.enable_button.config(state="normal")
-        self.disable_button.config(state="normal")
+        self.enable_button.config(state=self.enable_button_state)
+        self.disable_button.config(state=self.disable_button_state)
 
     def set_percentage(self):
         """Set the percentage level"""
@@ -156,12 +158,16 @@ class ArduinoControl(tk.Tk):
         self.ser.write(b'C')
         self.enable_button.config(state="disable")
         self.disable_button.config(state="normal")
+        self.enable_button_state = "disable"
+        self.disable_button_state = "normal"
 
     def disable(self):
         """Disable button"""
         self.ser.write(b'D')
         self.disable_button.config(state="disable")
         self.enable_button.config(state="normal")
+        self.disable_button_state = "disable"
+        self.enable_button_state = "normal"
 
     def set_game_mode(self, mode):
         """Set the game mode"""
