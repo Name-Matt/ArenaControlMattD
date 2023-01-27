@@ -1,0 +1,3 @@
+cd C:\Users\Matt\Documents\GitHub\ArenaControlMattD\Python
+
+pyinstaller --onefile --windowed --hidden-import tkinter.messagebox --hidden-import tkinter --hidden-import ttk --hidden-import subprocess --hidden-import os --hidden-import threading --hidden-import serial --hidden-import serial.tools.list_ports --hidden-import GUIStyles GUI_15.py
