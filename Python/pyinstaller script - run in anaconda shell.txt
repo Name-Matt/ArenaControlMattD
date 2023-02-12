@@ -1,3 +1,6 @@
 cd C:\Users\Matt\Documents\GitHub\ArenaControlMattD\Python
 
-pyinstaller --onefile --windowed --hidden-import tkinter.messagebox --hidden-import tkinter --hidden-import ttk --hidden-import subprocess --hidden-import os --hidden-import threading --hidden-import serial --hidden-import serial.tools.list_ports --hidden-import GUIStyles GUI_15.py
+pyinstaller --onefile --windowed --hidden-import tkinter.messagebox --hidden-import tkinter --hidden-import ttk --hidden-import subprocess --hidden-import os --hidden-import threading --hidden-import serial --hidden-import serial.tools.list_ports --hidden-import GUIStyles --add-data="C:\Users\Matt\Documents\GitHub\ArenaControlMattD\Python\OBSPortable;." --icon C:\Users\Matt\Downloads\uolcrest.ico GUI_17.py
+
+for GUI17_1:
+pyinstaller --onefile --windowed --hidden-import tkinter.messagebox --hidden-import tkinter --hidden-import ttk --hidden-import subprocess --hidden-import os --hidden-import threading --hidden-import serial --hidden-import serial.tools.list_ports --hidden-import GUIStyles --hidden-import sys --add-data="C:\Users\Matt\Documents\GitHub\ArenaControlMattD\Python\OBSPortable;." GUI_17_1.py

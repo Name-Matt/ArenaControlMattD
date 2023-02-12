@@ -5,11 +5,11 @@ block_cipher = None
 
 
 a = Analysis(
-    ['GUI_15.py'],
+    ['GUI_17_1.py'],
     pathex=[],
     binaries=[],
     datas=[('C:\\Users\\Matt\\Documents\\GitHub\\ArenaControlMattD\\Python\\OBSPortable', '.')],
-    hiddenimports=['tkinter.messagebox', 'tkinter', 'ttk', 'subprocess', 'os', 'threading', 'serial', 'serial.tools.list_ports', 'GUIStyles'],
+    hiddenimports=['tkinter.messagebox', 'tkinter', 'ttk', 'subprocess', 'os', 'threading', 'serial', 'serial.tools.list_ports', 'GUIStyles', 'sys'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='GUI_15',
+    name='GUI_17_1',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

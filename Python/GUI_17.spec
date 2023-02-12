@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['GUI_15.py'],
+    ['GUI_17.py'],
     pathex=[],
     binaries=[],
     datas=[('C:\\Users\\Matt\\Documents\\GitHub\\ArenaControlMattD\\Python\\OBSPortable', '.')],
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='GUI_15',
+    name='GUI_17',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -41,4 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['C:\\Users\\Matt\\Downloads\\uolcrest.ico'],
 )
