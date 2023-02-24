@@ -1,47 +1,51 @@
-/* Example sketch to control a stepper motor with Arduino Motor Shield Rev3, Arduino UNO and Stepper.h library. More info: https://www.makerguides.com */
-
-// Include the Stepper library:
-#include <Stepper.h>
-
-// Define number of steps per revolution:
-const int stepsPerRevolution = 200;
-
-// Give the motor control pins names:
-#define pwmA 3
-#define pwmB 11
-#define brakeA 9
-#define brakeB 8
-#define dirA 12
-#define dirB 13
-
-// Initialize the stepper library on the motor shield:
-Stepper myStepper = Stepper(stepsPerRevolution, dirA, dirB);
-
+// color swirl! connect an RGB LED to the PWM pins as indicated
+// in the #defines
+// public domain, enjoy!
+ 
+#define REDPIN 5
+#define GREENPIN 6
+#define BLUEPIN 9
+ 
+#define FADESPEED 5     // make this higher to slow down
+ 
 void setup() {
-  // Set the PWM and brake pins so that the direction pins can be used to control the motor:
-  pinMode(pwmA, OUTPUT);
-  pinMode(pwmB, OUTPUT);
-  pinMode(brakeA, OUTPUT);
-  pinMode(brakeB, OUTPUT);
-
-  digitalWrite(pwmA, HIGH);
-  digitalWrite(pwmB, HIGH);
-  digitalWrite(brakeA, LOW);
-  digitalWrite(brakeB, LOW);
-
-  // Set the motor speed (RPMs):
-  myStepper.setSpeed(60);
+  pinMode(REDPIN, OUTPUT);
+  pinMode(GREENPIN, OUTPUT);
+  pinMode(BLUEPIN, OUTPUT);
 }
-
-
+ 
+ 
 void loop() {
-  // Step one revolution in one direction:
-  myStepper.step(200);
-
-  delay(2000);
-
-  //Step on revolution in the other direction:
-  myStepper.step(-200);
-
-  delay(2000);
+  int r, g, b;
+ 
+  // fade from blue to violet
+  for (r = 0; r < 256; r++) { 
+    analogWrite(REDPIN, r);
+    delay(FADESPEED);
+  } 
+  // fade from violet to red
+  for (b = 255; b > 0; b--) { 
+    analogWrite(BLUEPIN, b);
+    delay(FADESPEED);
+  } 
+  // fade from red to yellow
+  for (g = 0; g < 256; g++) { 
+    analogWrite(GREENPIN, g);
+    delay(FADESPEED);
+  } 
+  // fade from yellow to green
+  for (r = 255; r > 0; r--) { 
+    analogWrite(REDPIN, r);
+    delay(FADESPEED);
+  } 
+  // fade from green to teal
+  for (b = 0; b < 256; b++) { 
+    analogWrite(BLUEPIN, b);
+    delay(FADESPEED);
+  } 
+  // fade from teal to blue
+  for (g = 255; g > 0; g--) { 
+    analogWrite(GREENPIN, g);
+    delay(FADESPEED);
+  } 
 }

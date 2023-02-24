@@ -22,7 +22,7 @@ void setup() {
   pinMode(brakeA, OUTPUT);
   pinMode(brakeB, OUTPUT);
 
-  pinMode(3, INPUT);
+  pinMode(4, INPUT);
 
   digitalWrite(pwmA, HIGH);
   digitalWrite(pwmB, HIGH);
@@ -36,7 +36,7 @@ void setup() {
 
 void loop() {
   // Step one revolution in one direction:
-  while (digitalRead(3) > 0){
+  while (digitalRead(4) > 0){
     myStepper.step(200);
     delay(200);
   }
