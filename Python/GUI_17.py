@@ -8,7 +8,7 @@ import serial
 import serial.tools.list_ports
 import GUIStyles as GS
 # Open OBS
-os.system(r"""start /D "C:\Users\Matt\Documents\GitHub\ArenaControlMattD\Python\OBSPortable" OBSPortable.exe""")
+os.system(r"""start /D "C:\Users\Matt\OneDrive - University of Leicester\4th Year Project\OBSPortable" OBSPortable.exe""")
 
 
 class ArduinoControl(tk.Tk):

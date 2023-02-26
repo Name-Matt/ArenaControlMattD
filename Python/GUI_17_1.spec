@@ -8,7 +8,7 @@ a = Analysis(
     ['GUI_17_1.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\Matt\\Documents\\GitHub\\ArenaControlMattD\\Python\\OBSPortable', '.')],
+    datas=[('C:\\Users\\Matt\\OneDrive - University of Leicester\\4th Year Project\\OBSPortable', '.')],
     hiddenimports=['tkinter.messagebox', 'tkinter', 'ttk', 'subprocess', 'os', 'threading', 'serial', 'serial.tools.list_ports', 'GUIStyles', 'sys'],
     hookspath=[],
     hooksconfig={},

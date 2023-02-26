@@ -4,3 +4,7 @@ pyinstaller --onefile --windowed --hidden-import tkinter.messagebox --hidden-imp
 
 for GUI17_1:
 pyinstaller --onefile --windowed --hidden-import tkinter.messagebox --hidden-import tkinter --hidden-import ttk --hidden-import subprocess --hidden-import os --hidden-import threading --hidden-import serial --hidden-import serial.tools.list_ports --hidden-import GUIStyles --hidden-import sys --add-data="C:\Users\Matt\Documents\GitHub\ArenaControlMattD\Python\OBSPortable;." GUI_17_1.py
+
+
+
+pyinstaller --onefile --windowed --hidden-import tkinter.messagebox --hidden-import tkinter --hidden-import ttk --hidden-import subprocess --hidden-import os --hidden-import threading --hidden-import serial --hidden-import serial.tools.list_ports --hidden-import GUIStyles --hidden-import sys --add-data="C:\Users\Matt\OneDrive - University of Leicester\4th Year Project\OBSPortable;." GUI_17_1.py
