@@ -1,29 +1,32 @@
-// Include the Stepper library:
-#include <Stepper.h>
-
+//Define pins for spinning trap control
 int SpinPins[6] = {A0, A1, A2, A3, A4, A5};           //the pins used for spinning motor
 int SpinPinsLen = sizeof(SpinPins) / sizeof(int);  //length of the array holding the pins
-int LEDpins[3] = {5, 6, 10};                    //pins used for LED control (RGB) - MUST BE PWM PINS
+
+//Define pins for LED control
+int LEDpins[3] = {5, 6, 9};                    //pins used for LED control (RGB) - MUST BE PWM PINS
 int LEDpinsLen = sizeof(LEDpins) / sizeof(int);
 
+//Define pins for door sensors
 #define doorSensor 2
 
+//Define pins for TB6600 driver
+const int EN = 10;   // Enable pin
+const int DIR = 11;  // Direction pin
+const int PUL = 12; // Pulse pin
 
-// Give the motor control pins names:
-#define pwmA 3
-#define pwmB 11
-#define brakeA 9
-#define brakeB 8
-#define dirA 12
-#define dirB 13
+//Set motor speed and steps per revolution
+const int motorSpeed = 1000; //higher number = slower speed
+const int stepsPerRevolution = 800; //dependent on DIP settings on TB6600
 
-// Define number of steps per revolution:
-const int stepsPerRevolution = 200;
+//TB6600 DIP Settings:
+//1:ON 
+//2:OFF
+//3:OFF
+//4:ON
+//5:ON
+//6:OFF
 
-// Initialize the stepper library on the motor shield:
-Stepper myStepper = Stepper(stepsPerRevolution, dirA, dirB);
-
-
+//Set initial pin stated for spinning trap
 int pin4State = 0;
 int pin5State = 0;
 int pin6State = 0;
@@ -32,13 +35,15 @@ int pin8State = 0;
 int pin12State = 0;
 
 bool doorOpen = true;  //boolean to hold if door open or closed
-bool emrgStop = false;  //true if emergenct stop pressed
+bool emrgStop = false;  //true if emergency stop pressed
 bool flag = true; //for first time running
 
+//Initial lighting colour
 int redState = 0;
 int greenState = 0;
 int blueState = 255;
 
+//Declares a string for serial communication
 String serialInfo = "Test";
 
 void setup() {
@@ -70,19 +75,15 @@ void setup() {
   //Serial.println(doorSensor);  //DEBUG prints to serial once been initialised
   attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
 
-  // Set the PWM and brake pins so that the direction pins can be used to control the motor:
-  pinMode(pwmA, OUTPUT);
-  pinMode(pwmB, OUTPUT);
-  pinMode(brakeA, OUTPUT);
-  pinMode(brakeB, OUTPUT);
+  // Set up the TB6600 pins as outputs
+  pinMode(EN, OUTPUT);
+  pinMode(DIR, OUTPUT);
+  pinMode(PUL, OUTPUT);
 
-  digitalWrite(pwmA, HIGH);
-  digitalWrite(pwmB, HIGH);
-  digitalWrite(brakeA, LOW);
-  digitalWrite(brakeB, LOW);
-
-  // Set the motor speed (RPMs):
-  myStepper.setSpeed(60);
+  // Set the initial TB6600 pin states
+  digitalWrite(EN, LOW);
+  digitalWrite(DIR, LOW);
+  digitalWrite(PUL, LOW);
 
   setLEDColour(255, 0, 40);  //sets lights pink to start
   // Send the value over serial
@@ -290,15 +291,16 @@ void loop() {
     }
     // Corner Trap Enable
     else if (inByte == 'C') {
-      serialInfo = "Corner Trap Enabled";
+      serialInfo = "Corner Trap Raised";
       Serial.println(serialInfo);
-      myStepper.step(200);
+      motorMove(1);
     }
     // Corner Trap Disable
     else if (inByte == 'D') {
-      serialInfo = "Corner Trap Disabled";
+      serialInfo = "Corner Trap Lowered";
       Serial.println(serialInfo);
-      myStepper.step(-200);
+      motorMove(0);
+
     }
     // Game Mode 1
     else if (inByte == 'M') {
@@ -326,4 +328,23 @@ void loop() {
       Serial.println(serialInfo);
     }
   }
+}
+
+void motorMove(int direction){
+  // Enable the motor driver
+  digitalWrite(EN, HIGH);
+
+  // Set the direction of the motor (1 = clockwise, 0 = counterclockwise)
+  digitalWrite(DIR, direction);
+
+  // Move the motor one revolution
+  for (int i = 0; i < stepsPerRevolution; i++) {
+    digitalWrite(PUL, HIGH);
+    delayMicroseconds(motorSpeed);
+    digitalWrite(PUL, LOW);
+    delayMicroseconds(motorSpeed);
+  }
+
+  // Disable the motor driver
+  digitalWrite(EN, LOW);
 }

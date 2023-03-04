@@ -6,13 +6,9 @@ import os
 import threading
 import serial
 import serial.tools.list_ports
-import sys
 import GUIStyles as GS
-
 # Open OBS
-obs_path = os.path.join(sys._MEIPASS, 'obs-studio-portable')
-obs_exe = os.path.join(obs_path, 'OBSPortable.exe')
-os.system(r'start /D "{obs_path}" "{obs_exe}"')
+os.system(r"""start /D "E:\OBSPortable" OBSPortable.exe""")
 
 
 class ArduinoControl(tk.Tk):
@@ -20,7 +16,7 @@ class ArduinoControl(tk.Tk):
     def __init__(self):
         super().__init__()
         self.ser = serial.Serial(None, 9600)
-        
+
         self.iconbitmap(r'C:\Users\Matt\Downloads\uolcrest.ico')
 
         self.title("Arduino Control")

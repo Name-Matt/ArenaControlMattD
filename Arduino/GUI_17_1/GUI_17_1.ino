@@ -3,7 +3,7 @@
 
 int SpinPins[6] = {A0, A1, A2, A3, A4, A5};           //the pins used for spinning motor
 int SpinPinsLen = sizeof(SpinPins) / sizeof(int);  //length of the array holding the pins
-int LEDpins[3] = {5, 6, 10};                    //pins used for LED control (RGB) - MUST BE PWM PINS
+int LEDpins[3] = {5, 6, 9};                    //pins used for LED control (RGB) - MUST BE PWM PINS
 int LEDpinsLen = sizeof(LEDpins) / sizeof(int);
 
 #define doorSensor 2
