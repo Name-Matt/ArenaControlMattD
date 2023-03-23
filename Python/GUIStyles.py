@@ -80,3 +80,48 @@ def create_styles():
                                           background=[('disabled', 'grey'),
                                                       ('pressed', '!focus', 'cyan'),
                                                       ('active', '#C76706')])
+    BLUEButtonStyle = ttk.Style()
+    BLUEButtonStyle.theme_use('classic')
+    BLUEButtonStyle.configure('BLUEButtonStyle.TButton', background = '#0000FF', foreground = 'white', width = 20, borderwidth=1, focusthickness=3, focuscolor='none')
+    BLUEButtonStyle.map('BLUEButtonStyle.TButton', foreground=[('disabled', 'black'),
+                                                      ('pressed', 'pink'),
+                                                      ('active', 'white')],
+                                          background=[('disabled', 'grey'),
+                                                      ('pressed', '!focus', 'cyan'),
+                                                      ('active', '#C76706')])
+    GREENButtonStyle = ttk.Style()
+    GREENButtonStyle.theme_use('classic')
+    GREENButtonStyle.configure('GREENButtonStyle.TButton', background = '#00FF00', foreground = 'black', width = 20, borderwidth=1, focusthickness=3, focuscolor='none')
+    GREENButtonStyle.map('GREENButtonStyle.TButton', foreground=[('disabled', 'black'),
+                                                      ('pressed', 'pink'),
+                                                      ('active', 'white')],
+                                          background=[('disabled', 'grey'),
+                                                      ('pressed', '!focus', 'cyan'),
+                                                      ('active', '#C76706')])
+    PINKButtonStyle = ttk.Style()
+    PINKButtonStyle.theme_use('classic')
+    PINKButtonStyle.configure('PINKButtonStyle.TButton', background = '#FFC0CB', foreground = 'black', width = 20, borderwidth=1, focusthickness=3, focuscolor='none')
+    PINKButtonStyle.map('PINKButtonStyle.TButton', foreground=[('disabled', 'black'),
+                                                      ('pressed', 'pink'),
+                                                      ('active', 'white')],
+                                          background=[('disabled', 'grey'),
+                                                      ('pressed', '!focus', 'cyan'),
+                                                      ('active', '#C76706')])
+    YELLOWButtonStyle = ttk.Style()
+    YELLOWButtonStyle.theme_use('classic')
+    YELLOWButtonStyle.configure('YELLOWButtonStyle.TButton', background = '#FFFF00', foreground = 'black', width = 20, borderwidth=1, focusthickness=3, focuscolor='none')
+    YELLOWButtonStyle.map('YELLOWButtonStyle.TButton', foreground=[('disabled', 'black'),
+                                                      ('pressed', 'pink'),
+                                                      ('active', 'white')],
+                                          background=[('disabled', 'grey'),
+                                                      ('pressed', '!focus', 'cyan'),
+                                                      ('active', '#C76706')])
+    FLASHButtonStyle = ttk.Style()
+    FLASHButtonStyle.theme_use('classic')
+    FLASHButtonStyle.configure('FLASHButtonStyle.TButton', background = '#C76706', foreground = 'white', width = 20, borderwidth=1, focusthickness=3, focuscolor='none')
+    FLASHButtonStyle.map('FLASHButtonStyle.TButton', foreground=[('disabled', 'black'),
+                                                      ('pressed', 'pink'),
+                                                      ('active', 'white')],
+                                          background=[('disabled', 'grey'),
+                                                      ('pressed', '!focus', 'cyan'),
+                                                      ('active', '#C76706')])

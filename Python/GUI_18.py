@@ -26,6 +26,10 @@ class ArduinoControl(tk.Tk):
         # Call in the created styles
         GS.create_styles()
         self.gm_but_styles = ['GM1Style.TButton','GM2Style.TButton','GM3Style.TButton','GM4Style.TButton','GM5Style.TButton']
+        self.colour_but_styles = ['BLUEButtonStyle.TButton','GREENButtonStyle.TButton','PINKButtonStyle.TButton','YELLOWButtonStyle.TButton','FLASHButtonStyle.TButton']
+        
+        # Create list of different colour LED states
+        self.LED_colours = ['Blue','Green','Pink','Yellow','5 Flash']
 
         # Create a menu bar
         self.menubar = tk.Menu(self)
@@ -149,11 +153,12 @@ class ArduinoControl(tk.Tk):
         self.game_mode = tk.StringVar()
         self.game_mode_buttons = []
         for i in range(5):
-            button = ttk.Button(self.gm_frame, text="Mode " + str(i+1),
-                                    command=lambda mode=chr(77+i): self.set_game_mode(mode), style=self.gm_but_styles[i], state="normal")
+            button = ttk.Button(self.gm_frame, text=self.LED_colours[i],
+                                    command=lambda mode=chr(77+i): self.set_game_mode(mode), style=self.colour_but_styles[i], state="normal")
             self.game_mode_buttons.append(button)
             button.grid(row=(GMBUTTONROW+1)+i,
                         column=GMBUTTONCOLUMN, padx=10, pady=5)
+        
 
         # Text box for serial data
         self.serial_data = tk.Text(self, height=5, width=30)

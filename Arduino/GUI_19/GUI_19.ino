@@ -73,7 +73,7 @@ void setup() {
   //declare pinMode for door sensor pins
   pinMode(doorSensor, INPUT_PULLUP);
   //Serial.println(doorSensor);  //DEBUG prints to serial once been initialised
-  attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
+  //attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
 
   // Set up the TB6600 pins as outputs
   pinMode(EN, OUTPUT);
@@ -306,21 +306,37 @@ void loop() {
     else if (inByte == 'M') {
       serialInfo = "Colour Set: BLUE";
       Serial.println(serialInfo);
+      redState = 0;
+      greenState = 0;
+      blueState = 255;
+      setLEDColour(redState, greenState, blueState);
     }
     // LED Mode 2
     else if (inByte == 'N') {
       serialInfo = "Colour Set: GREEN";
       Serial.println(serialInfo);
+      redState = 0;
+      greenState = 255;
+      blueState = 0;
+      setLEDColour(redState, greenState, blueState);
     }
     // LED Mode 3
     else if (inByte == 'O') {
       serialInfo = "Colour Set: PINK";
       Serial.println(serialInfo);
+      redState = 255;
+      greenState = 105;
+      blueState = 180;
+      setLEDColour(redState, greenState, blueState);
     }
     // LED Mode 4
     else if (inByte == 'P') {
       serialInfo = "Colour Set: YELLOW";
       Serial.println(serialInfo);
+      redState = 255;
+      greenState = 255;
+      blueState = 0;
+      setLEDColour(redState, greenState, blueState);
     }
     // LED Mode 5
     else if (inByte == 'Q') {
