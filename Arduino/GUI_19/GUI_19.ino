@@ -73,7 +73,7 @@ void setup() {
   //declare pinMode for door sensor pins
   pinMode(doorSensor, INPUT_PULLUP);
   //Serial.println(doorSensor);  //DEBUG prints to serial once been initialised
-  //attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
 
   // Set up the TB6600 pins as outputs
   pinMode(EN, OUTPUT);
@@ -341,6 +341,39 @@ void loop() {
     // LED Mode 5
     else if (inByte == 'Q') {
       serialInfo = "LED FLASH";
+      Serial.println(serialInfo);
+      setLEDColour(redState, greenState, blueState);
+      delay(500);
+      setLEDColour(0, 0, 0);
+      delay(500);
+      setLEDColour(redState, greenState, blueState);
+      delay(500);
+      setLEDColour(0, 0, 0);
+      delay(500);
+      setLEDColour(redState, greenState, blueState);
+      delay(500);
+      setLEDColour(0, 0, 0);
+      delay(500);
+      setLEDColour(redState, greenState, blueState);
+      delay(500);
+      setLEDColour(0, 0, 0);
+      delay(500);
+      setLEDColour(redState, greenState, blueState);
+      delay(500);
+      setLEDColour(0, 0, 0);
+      delay(500);
+      setLEDColour(redState, greenState, blueState);
+    }
+    // Door Sensor Enable
+    else if (inByte == 'Y'){
+      attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
+      serialInfo = "Door Sensors Enabled";
+      Serial.println(serialInfo);
+      }
+    // Door Sensor Disable
+    else if (inByte == 'Z'){
+      detachInterrupt(digitalPinToInterrupt(doorSensor));
+      serialInfo = "Door Sensors Disable";
       Serial.println(serialInfo);
     }
   }
