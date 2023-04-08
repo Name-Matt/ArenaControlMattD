@@ -47,7 +47,7 @@ int blueState = 255;
 String serialInfo = "Test";
 
 void setup() {
-  Serial.begin(9600); //define baud rate @ 9600
+  Serial.begin(9600);
 
   //decide if the doors are open or closed at start
   if (digitalRead(doorSensor) == LOW) {
@@ -73,7 +73,7 @@ void setup() {
   //declare pinMode for door sensor pins
   pinMode(doorSensor, INPUT_PULLUP);
   //Serial.println(doorSensor);  //DEBUG prints to serial once been initialised
-  attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
+  //attachInterrupt(digitalPinToInterrupt(doorSensor), doorOPENED_ISR, FALLING);
 
   // Set up the TB6600 pins as outputs
   pinMode(EN, OUTPUT);
@@ -85,7 +85,7 @@ void setup() {
   digitalWrite(DIR, LOW);
   digitalWrite(PUL, LOW);
 
-  setLEDColour(255, 0, 40);  //sets lights pink to start
+
   // Send the value over serial
   serialInfo = "Connected to Arena";
   Serial.println(serialInfo);
@@ -93,9 +93,9 @@ void setup() {
 
 void setLEDColour(int redLED, int greenLED, int blueLED) {
   //ensure the value between 0&255 and inverts as common annode
-  redLED = 255 - constrain(redLED, 0, 255);
-  greenLED = 255 - constrain(greenLED, 0, 255);
-  blueLED = 255 - constrain(blueLED, 0, 255);
+  redLED = constrain(redLED, 0, 255);
+  greenLED = constrain(greenLED, 0, 255);
+  blueLED = constrain(blueLED, 0, 255);
 
   //writes the values to the led
   analogWrite(LEDpins[0], redLED);
@@ -130,8 +130,6 @@ void doorOPENED_ISR() {  //what to do if door is open
   }
   setLEDColour(redState, greenState, blueState);
 }
-
-
 
 void loop() {
   if (flag == true){
@@ -343,25 +341,25 @@ void loop() {
       serialInfo = "LED FLASH";
       Serial.println(serialInfo);
       setLEDColour(redState, greenState, blueState);
-      delay(500);
+      delay(100);
       setLEDColour(0, 0, 0);
-      delay(500);
+      delay(100);
       setLEDColour(redState, greenState, blueState);
-      delay(500);
+      delay(100);
       setLEDColour(0, 0, 0);
-      delay(500);
+      delay(100);
       setLEDColour(redState, greenState, blueState);
-      delay(500);
+      delay(100);
       setLEDColour(0, 0, 0);
-      delay(500);
+      delay(100);
       setLEDColour(redState, greenState, blueState);
-      delay(500);
+      delay(100);
       setLEDColour(0, 0, 0);
-      delay(500);
+      delay(100);
       setLEDColour(redState, greenState, blueState);
-      delay(500);
+      delay(100);
       setLEDColour(0, 0, 0);
-      delay(500);
+      delay(100);
       setLEDColour(redState, greenState, blueState);
     }
     // Door Sensor Enable
@@ -374,10 +372,6 @@ void loop() {
     else if (inByte == 'Z'){
       detachInterrupt(digitalPinToInterrupt(doorSensor));
       serialInfo = "Door Sensors Disable";
-      Serial.println(serialInfo);
-    }
-    else{
-      serialInfo = "ERROR: Command Not Recognised";
       Serial.println(serialInfo);
     }
   }
