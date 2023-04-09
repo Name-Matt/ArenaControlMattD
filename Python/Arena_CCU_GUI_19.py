@@ -1,12 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import *
-import tkinter.messagebox
 import threading
+import webbrowser
+from functools import partial
 import serial
 import serial.tools.list_ports
 import GUIStyles as GS
-import webbrowser
 # Open OBS
 #os.system(r"""start /D "E:\OBSPortable" OBSPortable.exe""")
 
@@ -17,7 +16,8 @@ class ArduinoControl(tk.Tk):
     def __init__(self):
         super().__init__()
         self.ser = serial.Serial(None, 9600)
-
+        
+        # set to path where UoL icon is
         self.iconbitmap(r'E:\UniOfLeicesterCrest.ico')
 
         self.title("Arduino Control")
@@ -50,21 +50,21 @@ class ArduinoControl(tk.Tk):
             label="Options", command=self.on_tools_options)
 
         # Create the checkbox for door sensors (DS = DoorSensor)
-        self.DSvar = BooleanVar()
+        self.DSvar = tk.BooleanVar()
         self.DSvar.set(False)
         self.DSVarState = self.DSvar.get()
         self.tools_menu.add_checkbutton(
             label="Door Sensors Enabled", variable=self.DSvar, command=self.on_tools_sensors)
         self.tools_menu.add_separator()
-        
+
         # Create the checkbox for disabling turntable (TT = turntable)
-        self.TTvar = BooleanVar()
+        self.TTvar = tk.BooleanVar()
         self.TTvar.set(False)
         self.TTvarState = self.TTvar.get()
         self.tools_menu.add_checkbutton(
             label="Turntable Trap Enabled", variable=self.TTvar, command=self.on_tools_turntable)
         # Create the checkbox for disabling pit trap (PT = pit trap)
-        self.PTvar = BooleanVar()
+        self.PTvar = tk.BooleanVar()
         self.PTvar.set(False)
         self.PTvarState = self.PTvar.get()
         self.tools_menu.add_checkbutton(
@@ -81,8 +81,8 @@ class ArduinoControl(tk.Tk):
 
         # Add the COM ports to the submenu
         for port in self.ports:
-            self.com_menu.add_radiobutton(
-                label=port.description, command=lambda: self.on_com_select(port.device))
+            callback = partial(self.on_com_select, port.device)
+            self.com_menu.add_radiobutton(label=port.description, command=callback)
 
         # Create the Help menu
         self.help_menu = tk.Menu(self.menubar)
@@ -132,7 +132,8 @@ class ArduinoControl(tk.Tk):
         self.gm_frame.grid(row=GMBUTTONROW, column=GMBUTTONCOLUMN,
                            padx=FRAMEPAD, pady=FRAMEPAD, sticky='nsew')
         # Label the game mode column
-        self.gm_label = tk.Label(self.gm_frame, text="LED Control", bg=GMCOLOUR)
+        self.gm_label = tk.Label(
+            self.gm_frame, text="LED Control", bg=GMCOLOUR)
         self.gm_label.grid(row=GMBUTTONROW, column=GMBUTTONCOLUMN,
                            padx=RADIOBUTTONSBUTTONX, pady=RADIOBUTTONSBUTTONY, sticky="nsew")
 
@@ -158,8 +159,8 @@ class ArduinoControl(tk.Tk):
             self.percentage_buttons.append(button)
             button.grid(row=(RADIOBUTTONROW+1)+i,
                         column=RADIOBUTTONCOLUMN, padx=10, pady=5)
-            
-        #Disabled by default as trap not ready
+
+        # Disabled by default as trap not ready
         self.percentage_buttons[0].config(state="disable")
         self.percentage_buttons[1].config(state="disable")
         self.percentage_buttons[2].config(state="disable")
@@ -196,7 +197,7 @@ class ArduinoControl(tk.Tk):
 
     def update_serial_data(self):
         """Read serial data and update the text box"""
-        if self.ser != None:
+        if self.ser is not None:
             while not self.stop_thread.get():
                 data = self.ser.readline().decode()
                 self.serial_data.insert("end", data)
@@ -205,7 +206,7 @@ class ArduinoControl(tk.Tk):
 
     def stop(self):
         """Emergency stop button"""
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
         else:
@@ -219,7 +220,7 @@ class ArduinoControl(tk.Tk):
 
     def resume(self):
         """Resume button"""
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
         else:
@@ -233,7 +234,7 @@ class ArduinoControl(tk.Tk):
 
     def set_percentage(self):
         """Set the percentage level"""
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
         else:
@@ -241,7 +242,7 @@ class ArduinoControl(tk.Tk):
 
     def enable(self):
         """Enable button"""
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
         else:
@@ -253,7 +254,7 @@ class ArduinoControl(tk.Tk):
 
     def disable(self):
         """Disable button"""
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
         else:
@@ -265,7 +266,7 @@ class ArduinoControl(tk.Tk):
 
     def set_game_mode(self, mode):
         """Set the game mode"""
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
         else:
@@ -282,7 +283,7 @@ class ArduinoControl(tk.Tk):
     def on_tools_sensors(self):
         """Callback function for the checkbox"""
         # Keeps enabled by defualt if no connection
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
             self.DSvar.set(False)
@@ -294,11 +295,11 @@ class ArduinoControl(tk.Tk):
             print("Sensors are Disabled")
             self.DSVarState = self.DSvar.get()
             self.ser.write(b'Z')
-            
+
     def on_tools_turntable(self):
         """Callback function for the checkbox"""
         # Keeps enabled by defualt if no connection
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
             self.TTvar.set(True)
@@ -324,7 +325,7 @@ class ArduinoControl(tk.Tk):
     def on_tools_pittrap(self):
         """Callback function for the checkbox"""
         # Keeps enabled by defualt if no connection
-        if self.ser.port == None:
+        if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
             self.PTvar.set(True)
