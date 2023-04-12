@@ -139,7 +139,7 @@ class ArduinoControl(tk.Tk):
 
         # Emergency stop button
         self.stop_button = ttk.Button(self, text="Emergency Stop",
-                                      command=self.stop, style='RedEmerg.TButton')
+                                      command=self.stop, style='RedEmerg.TButton', state="disabled")
         self.stop_button.grid(row=0, column=0, columnspan=2,
                               padx=BUTTONPADX, pady=BUTTONPADY, sticky="nsew")
 
@@ -186,10 +186,11 @@ class ArduinoControl(tk.Tk):
         self.game_mode_buttons = []
         for i in range(5):
             button = ttk.Button(self.gm_frame, text=self.LED_colours[i],
-                                command=lambda mode=chr(77+i): self.set_game_mode(mode), style=self.colour_but_styles[i], state="normal")
+                                command=lambda mode=chr(77+i): self.set_game_mode(mode), style=self.colour_but_styles[i], state="disabled")
             self.game_mode_buttons.append(button)
             button.grid(row=(GMBUTTONROW+1)+i,
                         column=GMBUTTONCOLUMN, padx=10, pady=5)
+        self.TT_button_state = "disabled"
 
         # Text box for serial data
         self.serial_data = tk.Text(self, height=5, width=30)
@@ -228,7 +229,7 @@ class ArduinoControl(tk.Tk):
             self.stop_button.config(state="normal")
             self.resume_button.config(state="disable")
             for button in self.percentage_buttons + self.game_mode_buttons:
-                button.config(state="normal")
+                button.config(state=self.TT_button_state)
             self.enable_button.config(state=self.enable_button_state)
             self.disable_button.config(state=self.disable_button_state)
 
@@ -302,7 +303,7 @@ class ArduinoControl(tk.Tk):
         if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
-            self.TTvar.set(True)
+            self.TTvar.set(False)
         if self.TTvar.get():
             self.percentage_buttons[0].config(state="normal")
             self.percentage_buttons[1].config(state="normal")
@@ -312,6 +313,7 @@ class ArduinoControl(tk.Tk):
             self.percentage_buttons[5].config(state="normal")
             print("Turntable is Enabled")
             self.TTVarState = self.TTvar.get()
+            self.TT_button_state=  "normal"
         else:
             self.percentage_buttons[0].config(state="disable")
             self.percentage_buttons[1].config(state="disable")
@@ -321,6 +323,7 @@ class ArduinoControl(tk.Tk):
             self.percentage_buttons[5].config(state="disable")
             print("Turntable is Disabled")
             self.TTVarState = self.TTvar.get()
+            self.TT_button_state=  "disabled"
 
     def on_tools_pittrap(self):
         """Callback function for the checkbox"""
@@ -328,7 +331,7 @@ class ArduinoControl(tk.Tk):
         if self.ser.port is None:
             tk.messagebox.showerror(
                 "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
-            self.PTvar.set(True)
+            self.PTvar.set(False)
         if self.PTvar.get():
             print("Pit trap is Enabled")
             self.disable_button_state = "normal"
@@ -364,6 +367,12 @@ class ArduinoControl(tk.Tk):
 
         if self.ser.is_open:
             print(f'{com} is open')
+            self.stop_button.config(state="normal")
+            self.game_mode_buttons[0].config(state="normal")
+            self.game_mode_buttons[1].config(state="normal")
+            self.game_mode_buttons[2].config(state="normal")
+            self.game_mode_buttons[3].config(state="normal")
+            self.game_mode_buttons[4].config(state="normal")
         else:
             print(f'could not open {com}')
 
