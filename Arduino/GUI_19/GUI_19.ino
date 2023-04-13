@@ -118,7 +118,7 @@ void doorOPENED_ISR() {  //what to do if door is open
   setLEDColour(255, 0, 0);  //set lights red
   //keep running this loop if ANY doors are open
   while (doorOpen == true) {
-    Serial.println("TRUE");
+    //Serial.println("TRUE");
     //will break the while loop if the door is shut
     if (digitalRead(doorSensor) == LOW) {
       doorOpen = false;

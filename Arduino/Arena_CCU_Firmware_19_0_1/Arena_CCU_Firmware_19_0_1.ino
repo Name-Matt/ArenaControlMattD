@@ -105,32 +105,6 @@ void setLEDColour(int redLED, int greenLED, int blueLED) {
   //Serial.println("LED COLOUR SET");
 }
 
-void doorOPENED_ISR() {  //what to do if door is open
-  doorOpen = true;
-  digitalWrite(SpinPins[0], HIGH);
-  digitalWrite(SpinPins[1], LOW);
-  digitalWrite(SpinPins[2], LOW);
-  digitalWrite(SpinPins[3], LOW);
-  digitalWrite(SpinPins[4], LOW);
-  digitalWrite(SpinPins[5], LOW);
-  serialInfo = "DOOR OPENED - EMERGENCY STOP";
-  Serial.println(serialInfo);
-  setLEDColour(255, 0, 0);  //set lights red
-  //keep running this loop if ANY doors are open
-  while (doorOpen == true) {
-    Serial.println("TRUE");
-    //will break the while loop if the door is shut
-    if (digitalRead(doorSensor) == LOW) {
-      doorOpen = false;
-      serialInfo = "DOOR SHUT - RESUME";
-      Serial.println(serialInfo);
-    }
-    //delay to prevent saturating the serial line
-    delay(100);
-  }
-  setLEDColour(redState, greenState, blueState);
-}
-
 void loop() {
   if (flag == true){
     setLEDColour(redState, greenState, blueState);
@@ -394,4 +368,30 @@ void motorMove(int direction){
 
   // Disable the motor driver
   digitalWrite(EN, LOW);
+}
+
+void doorOPENED_ISR() {  //what to do if door is open
+  //doorOpen = true;
+  digitalWrite(SpinPins[0], HIGH);
+  digitalWrite(SpinPins[1], LOW);
+  digitalWrite(SpinPins[2], LOW);
+  digitalWrite(SpinPins[3], LOW);
+  digitalWrite(SpinPins[4], LOW);
+  digitalWrite(SpinPins[5], LOW);
+  serialInfo = "DOOR OPENED - EMERGENCY STOP";
+  Serial.println(serialInfo);
+  setLEDColour(255, 0, 0);  //set lights red
+  //keep running this loop if ANY doors are open
+  while (doorOpen == true) {
+    Serial.println("TRUE");
+    //will break the while loop if the door is shut
+    if (digitalRead(doorSensor) == LOW) {
+      doorOpen = false;
+      serialInfo = "DOOR SHUT - SAFE TO RESUME";
+      Serial.println(serialInfo);
+    }
+    //delay to prevent saturating the serial line
+    delay(1000);
+  }
+  setLEDColour(redState, greenState, blueState);
 }

@@ -19,6 +19,9 @@ class ArduinoControl(tk.Tk):
         
         # set to path where UoL icon is
         self.iconbitmap(r'E:\UniOfLeicesterCrest.ico')
+        
+        # flag to hold if an arena is detected
+        self.arena_connected = False
 
         self.title("Arduino Control")
         # flag to track state of thread
@@ -201,9 +204,15 @@ class ArduinoControl(tk.Tk):
         if self.ser is not None:
             while not self.stop_thread.get():
                 data = self.ser.readline().decode()
+                if 'DOOR OPENED - EMERGENCY STOP' in data:
+                    print("Door Open STOP")
+                    self.door_stop()
+                elif "Connected to Arena" in data:
+                    self.arena_connected = True
+                    print(self.arena_connected)
                 self.serial_data.insert("end", data)
                 self.serial_data.see("end")
-                self.update()
+
 
     def stop(self):
         """Emergency stop button"""
@@ -218,6 +227,15 @@ class ArduinoControl(tk.Tk):
                 button.config(state="disable")
             self.enable_button.config(state="disable")
             self.disable_button.config(state="disable")
+            
+    def door_stop(self):
+        """Emergency stop button"""
+        self.stop_button.config(state="disable")
+        self.resume_button.config(state="normal")
+        for button in self.percentage_buttons + self.game_mode_buttons:
+            button.config(state="disable")
+        self.enable_button.config(state="disable")
+        self.disable_button.config(state="disable")            
 
     def resume(self):
         """Resume button"""
