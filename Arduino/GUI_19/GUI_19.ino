@@ -6,6 +6,9 @@ int SpinPinsLen = sizeof(SpinPins) / sizeof(int);  //length of the array holding
 int LEDpins[3] = {5, 6, 9};                    //pins used for LED control (RGB) - MUST BE PWM PINS
 int LEDpinsLen = sizeof(LEDpins) / sizeof(int);
 
+//Counter for time for LED FADE in SelfTest
+unsigned long previousMillis = 0;
+
 //Define pins for door sensors
 #define doorSensor 2
 
@@ -107,12 +110,7 @@ void setLEDColour(int redLED, int greenLED, int blueLED) {
 
 void doorOPENED_ISR() {  //what to do if door is open
   doorOpen = true;
-  digitalWrite(SpinPins[0], HIGH);
-  digitalWrite(SpinPins[1], LOW);
-  digitalWrite(SpinPins[2], LOW);
-  digitalWrite(SpinPins[3], LOW);
-  digitalWrite(SpinPins[4], LOW);
-  digitalWrite(SpinPins[5], LOW);
+  spinSpeed(0);
   serialInfo = "DOOR OPENED - EMERGENCY STOP";
   Serial.println(serialInfo);
   setLEDColour(255, 0, 0);  //set lights red
@@ -131,11 +129,8 @@ void doorOPENED_ISR() {  //what to do if door is open
   setLEDColour(redState, greenState, blueState);
 }
 
-
-
-void loop() {
-  if (flag == true){
-    setLEDColour(redState, greenState, blueState);
+void spinSpeed(int speed) {
+  if (speed == 0) {
     digitalWrite(SpinPins[0], HIGH);
     digitalWrite(SpinPins[1], LOW);
     digitalWrite(SpinPins[2], LOW);
@@ -148,6 +143,145 @@ void loop() {
     pin7State = 0;
     pin8State = 0;
     pin12State = 0;
+    serialInfo = "Spin Speed 0%";
+    Serial.println(serialInfo);
+  }
+  else if (speed == 1) {
+    digitalWrite(SpinPins[0], LOW);
+    digitalWrite(SpinPins[1], HIGH);
+    digitalWrite(SpinPins[2], LOW);
+    digitalWrite(SpinPins[3], LOW);
+    digitalWrite(SpinPins[4], LOW);
+    digitalWrite(SpinPins[5], LOW);
+    pin4State = 0;
+    pin5State = 1;
+    pin6State = 0;
+    pin7State = 0;
+    pin8State = 0;
+    pin12State = 0;
+    serialInfo = "Spin Speed 20%";
+    Serial.println(serialInfo);
+  }
+  else if (speed == 2) {
+    digitalWrite(SpinPins[0], LOW);
+    digitalWrite(SpinPins[1], LOW);
+    digitalWrite(SpinPins[2], HIGH);
+    digitalWrite(SpinPins[3], LOW);
+    digitalWrite(SpinPins[4], LOW);
+    digitalWrite(SpinPins[5], LOW);
+    pin4State = 0;
+    pin5State = 0;
+    pin6State = 1;
+    pin7State = 0;
+    pin8State = 0;
+    pin12State = 0;
+    serialInfo = "Spin Speed 40%";
+    Serial.println(serialInfo);
+  }
+  else if (speed == 3) {
+    digitalWrite(SpinPins[0], LOW);
+    digitalWrite(SpinPins[1], LOW);
+    digitalWrite(SpinPins[2], LOW);
+    digitalWrite(SpinPins[3], HIGH);
+    digitalWrite(SpinPins[4], LOW);
+    digitalWrite(SpinPins[5], LOW);
+    pin4State = 0;
+    pin5State = 0;
+    pin6State = 0;
+    pin7State = 1;
+    pin8State = 0;
+    pin12State = 0;
+    serialInfo = "Spin Speed 60%";
+    Serial.println(serialInfo);
+  }
+  else if (speed == 4) {
+    digitalWrite(SpinPins[0], LOW);
+    digitalWrite(SpinPins[1], LOW);
+    digitalWrite(SpinPins[2], LOW);
+    digitalWrite(SpinPins[3], HIGH);
+    digitalWrite(SpinPins[4], LOW);
+    digitalWrite(SpinPins[5], LOW);
+    pin4State = 0;
+    pin5State = 0;
+    pin6State = 0;
+    pin7State = 0;
+    pin8State = 1;
+    pin12State = 0;
+    serialInfo = "Spin Speed 80%";
+    Serial.println(serialInfo);
+  }
+  else if (speed == 5) {
+    digitalWrite(SpinPins[0], LOW);
+    digitalWrite(SpinPins[1], LOW);
+    digitalWrite(SpinPins[2], LOW);
+    digitalWrite(SpinPins[3], LOW);
+    digitalWrite(SpinPins[4], HIGH);
+    digitalWrite(SpinPins[5], LOW);
+    pin4State = 0;
+    pin5State = 0;
+    pin6State = 0;
+    pin7State = 0;
+    pin8State = 0;
+    pin12State = 1;
+    serialInfo = "Spin Speed 100%";
+    Serial.println(serialInfo);
+  }
+  else if (speed == 9) {
+    digitalWrite(SpinPins[0], HIGH);
+    digitalWrite(SpinPins[1], LOW);
+    digitalWrite(SpinPins[2], LOW);
+    digitalWrite(SpinPins[3], LOW);
+    digitalWrite(SpinPins[4], LOW);
+    digitalWrite(SpinPins[5], LOW);
+  }
+}
+
+void selfTest() {
+  motorMove(0);
+
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis >= 50) {
+    // Save the current time for the next color change
+    previousMillis = currentMillis;
+
+    static int redValue = 0;
+    static int greenValue = 0;
+    static int blueValue = 0;
+
+    setLEDColour(redValue, greenValue, blueValue);
+
+    // Increment the color values, loops round when value exceeds 255
+    blueValue++;
+    if (blueValue == 256) {
+      blueValue = 0;
+      greenValue++;
+    }
+    if (greenValue == 256) {
+      greenValue = 0;
+      redValue++;
+    }
+    if (redValue == 256) {
+      // Turn off the LED strip
+      setLEDColour(0,0,0);
+    }
+  }
+
+  motorMove(1);
+  spinSpeed(0);
+  spinSpeed(1);
+  spinSpeed(2);
+  spinSpeed(3);
+  spinSpeed(4);
+  spinSpeed(5);
+
+
+}
+
+void loop() {
+  if (flag == true){
+    setLEDColour(redState, greenState, blueState);
+    spinSpeed(0);
     flag = false;
   }
   
@@ -158,12 +292,7 @@ void loop() {
 
     // Emergency stop command
     if (inByte == 'E') {
-      digitalWrite(SpinPins[0], HIGH);
-      digitalWrite(SpinPins[1], LOW);
-      digitalWrite(SpinPins[2], LOW);
-      digitalWrite(SpinPins[3], LOW);
-      digitalWrite(SpinPins[4], LOW);
-      digitalWrite(SpinPins[5], LOW);
+      spinSpeed(9);
       setLEDColour(255,0,0);
       serialInfo = "EMERGENCY STOP ACTIVATED";
       Serial.println(serialInfo);
@@ -182,112 +311,27 @@ void loop() {
     }
     // Pin 4 command
     else if (inByte == '0') {
-      digitalWrite(SpinPins[0], HIGH);
-      digitalWrite(SpinPins[1], LOW);
-      digitalWrite(SpinPins[2], LOW);
-      digitalWrite(SpinPins[3], LOW);
-      digitalWrite(SpinPins[4], LOW);
-      digitalWrite(SpinPins[5], LOW);
-      serialInfo = "Spin Speed 0%";
-      Serial.println(serialInfo);
-
-      pin4State = 1;
-      pin5State = 0;
-      pin6State = 0;
-      pin7State = 0;
-      pin8State = 0;
-      pin12State = 0;
-
+      spinSpeed(inByte);
     }
     // Pin 5 command
     else if (inByte == '1') {
-      digitalWrite(SpinPins[0], LOW);
-      digitalWrite(SpinPins[1], HIGH);
-      digitalWrite(SpinPins[2], LOW);
-      digitalWrite(SpinPins[3], LOW);
-      digitalWrite(SpinPins[4], LOW);
-      digitalWrite(SpinPins[5], LOW);
-      serialInfo = "Spin Speed 20%";
-      Serial.println(serialInfo);
-
-      pin4State = 0;
-      pin5State = 1;
-      pin6State = 0;
-      pin7State = 0;
-      pin8State = 0;
-      pin12State = 0;
+      spinSpeed(inByte);
     }
     // Pin 6 command
     else if (inByte == '2') {
-      digitalWrite(SpinPins[0], LOW);
-      digitalWrite(SpinPins[1], LOW);
-      digitalWrite(SpinPins[2], HIGH);
-      digitalWrite(SpinPins[3], LOW);
-      digitalWrite(SpinPins[4], LOW);
-      digitalWrite(SpinPins[5], LOW);
-      serialInfo = "Spin Speed 40%";
-      Serial.println(serialInfo);
-
-      pin4State = 0;
-      pin5State = 0;
-      pin6State = 1;
-      pin7State = 0;
-      pin8State = 0;
-      pin12State = 0;
+      spinSpeed(inByte);
     }
     // Pin 7 command
     else if (inByte == '3') {
-      digitalWrite(SpinPins[0], LOW);
-      digitalWrite(SpinPins[1], LOW);
-      digitalWrite(SpinPins[2], LOW);
-      digitalWrite(SpinPins[3], HIGH);
-      digitalWrite(SpinPins[4], LOW);
-      digitalWrite(SpinPins[5], LOW);
-      serialInfo = "Spin Speed 60%";
-      Serial.println(serialInfo);
-
-      pin4State = 0;
-      pin5State = 0;
-      pin6State = 0;
-      pin7State = 1;
-      pin8State = 0;
-      pin12State = 0;
+      spinSpeed(inByte);
     }
     // Pin 8 command
     else if (inByte == '4') {
-      digitalWrite(SpinPins[0], LOW);
-      digitalWrite(SpinPins[1], LOW);
-      digitalWrite(SpinPins[2], LOW);
-      digitalWrite(SpinPins[3], LOW);
-      digitalWrite(SpinPins[4], HIGH);
-      digitalWrite(SpinPins[5], LOW);
-      serialInfo = "Spin Speed 80%";
-      Serial.println(serialInfo);
-
-      pin4State = 0;
-      pin5State = 0;
-      pin6State = 0;
-      pin7State = 0;
-      pin8State = 1;
-      pin12State = 0;
+      spinSpeed(inByte);
     }
     // Pin 12 command
     else if (inByte == '5') {
-      digitalWrite(SpinPins[0], LOW);
-      digitalWrite(SpinPins[1], LOW);
-      digitalWrite(SpinPins[2], LOW);
-      digitalWrite(SpinPins[3], LOW);
-      digitalWrite(SpinPins[4], LOW);
-      digitalWrite(SpinPins[5], HIGH);
-      serialInfo = "Spin Speed 100%";
-      Serial.println(serialInfo);
-
-      pin4State = 0;
-      pin5State = 0;
-      pin6State = 0;
-      pin7State = 0;
-      pin8State = 0;
-      pin12State = 1;
+      spinSpeed(inByte);
     }
     // Corner Trap Enable
     else if (inByte == 'C') {
@@ -374,6 +418,14 @@ void loop() {
     else if (inByte == 'Z'){
       detachInterrupt(digitalPinToInterrupt(doorSensor));
       serialInfo = "Door Sensors Disable";
+      Serial.println(serialInfo);
+    }
+    // Self Test command
+    else if (inByte == 'S') {
+      serialInfo = "SELF TEST IN PROGRESS";
+      Serial.println(serialInfo);
+      selfTest();
+      serialInfo = "SELF TEST END";
       Serial.println(serialInfo);
     }
     else{

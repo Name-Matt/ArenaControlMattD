@@ -49,8 +49,7 @@ class ArduinoControl(tk.Tk):
         # Create the Tools menu
         self.tools_menu = tk.Menu(self.menubar)
         self.menubar.add_cascade(label="Tools", menu=self.tools_menu)
-        self.tools_menu.add_command(
-            label="Options", command=self.on_tools_options)
+        
 
         # Create the checkbox for door sensors (DS = DoorSensor)
         self.DSvar = tk.BooleanVar()
@@ -78,6 +77,11 @@ class ArduinoControl(tk.Tk):
         self.com_menu = tk.Menu(self.tools_menu)
         self.tools_menu.add_cascade(
             label="Select COM port", menu=self.com_menu)
+        self.tools_menu.add_separator()
+        
+        # Create Self Test Button
+        self.tools_menu.add_command(
+            label="Self Test", command=self.on_tools_selfTest)
 
         # Get the list of available COM ports
         self.ports = list(serial.tools.list_ports.comports())
@@ -295,9 +299,13 @@ class ArduinoControl(tk.Tk):
         """Create the 'New' button in File menu in toolbar"""
         print("File > New clicked")
 
-    def on_tools_options(self):
-        """Create the 'Options' button in Tools menu in toolbar"""
-        print("Tools > Options clicked")
+    def on_tools_selfTest(self):
+        """Create the 'Self Test' button in Tools menu in toolbar"""
+        if self.ser.port is None:
+            tk.messagebox.showerror(
+                "Serial Port Error", "Please check if the Arduino is connected and that the correct port is selected. Go Tools -> Select COM port")
+        self.ser.write(b'S')
+
 
     def on_tools_sensors(self):
         """Callback function for the checkbox"""
